@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPECREF — Material Data Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  :root {
+    --bg:         #090B0A;
+    --surface:    #111413;
+    --surface-2:  #191C1A;
+    --border:     #222623;
+    --border-2:   #2E332F;
+    --accent:     #C8811A;
+    --accent-dim: rgba(200,129,26,0.12);
+    --accent-glow:rgba(200,129,26,0.06);
+    --text:       #CEC9BF;
+    --text-dim:   #6A6860;
+    --text-bright:#EAE5DA;
+    --success:    #5A9E70;
+    --error:      #A05050;
+    --mono:       'IBM Plex Mono', monospace;
+    --sans:       'IBM Plex Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ─────────────────────────────────────── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.1em;
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .logo-sub {
+    font-weight: 400;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    margin-left: 0.6em;
+    position: relative;
+    top: -1px;
+  }
+
+  .api-key-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: 1px solid var(--border-2);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .api-key-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .api-key-btn.keyed  { border-color: var(--success); color: var(--success); }
+
+  /* ── MAIN ───────────────────────────────────────── */
+  main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  /* ── HERO ───────────────────────────────────────── */
+  .hero {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .hero-title {
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--text-bright);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.4rem;
+  }
+
+  .hero-title strong {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    max-width: 580px;
+    line-height: 1.7;
+  }
+
+  /* Coverage pills */
+  .coverage {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 1rem;
+  }
+
+  .coverage-pill {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    padding: 0.2rem 0.55rem;
+  }
+
+  /* ── API PANEL ──────────────────────────────────── */
+  .api-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .api-panel.open { display: block; }
+
+  .api-panel-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .api-panel-row { display: flex; gap: 0.5rem; }
+
+  .api-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border-2);
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    padding: 0.45rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .api-input:focus { border-color: var(--accent); }
+
+  .api-panel-hint {
+    margin-top: 0.7rem;
+    font-size: 0.73rem;
+    color: var(--text-dim);
+  }
+
+  .api-panel-hint a { color: var(--accent); text-decoration: none; }
+  .api-panel-hint a:hover { text-decoration: underline; }
+
+  /* ── NO-KEY BANNER ──────────────────────────────── */
+  .no-key-banner {
+    display: none;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--accent-dim);
+    border: 1px solid rgba(200,129,26,0.3);
+    padding: 0.6rem 1rem;
+    margin-bottom: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    cursor: pointer;
+  }
+
+  .no-key-banner.visible { display: flex; }
+
+  /* ── BUTTONS ────────────────────────────────────── */
+  .btn {
+    background: var(--accent);
+    border: none;
+    color: #060807;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { opacity: 0.82; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border-2);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    padding: 0.45rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── QUERY INPUT ────────────────────────────────── */
+  .query-section { margin-bottom: 1.75rem; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .query-row { display: flex; }
+
+  .query-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-right: none;
+    color: var(--text-bright);
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 300;
+    padding: 0.8rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .query-input:focus { border-color: var(--accent); }
+
+  .query-input::placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  .query-row .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Example chips */
+  .examples {
+    margin-top: 0.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .eg-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-right: 0.2rem;
+  }
+
+  .eg-chip {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    padding: 0.2rem 0.55rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .eg-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* ── RESULTS PANEL ──────────────────────────────── */
+  .result-panel {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    margin-bottom: 1.5rem;
+  }
+
+  .result-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .result-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .result-label-text {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .status-badge {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid;
+    text-transform: uppercase;
+  }
+
+  .status-badge.idle    { color: var(--text-dim);  border-color: var(--border-2); }
+  .status-badge.loading { color: var(--accent);    border-color: var(--accent); animation: blink 1s ease-in-out infinite; }
+  .status-badge.done    { color: var(--success);   border-color: var(--success); }
+  .status-badge.error   { color: var(--error);     border-color: var(--error); }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .result-body { padding: 1.5rem; min-height: 220px; }
+
+  .result-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    gap: 0.5rem;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .result-empty-icon {
+    font-size: 1.5rem;
+    opacity: 0.3;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Loading state */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    gap: 1rem;
+  }
+
+  .dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .dots span {
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: dotPulse 1.4s ease-in-out infinite;
+  }
+
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dotPulse {
+    0%,80%,100% { opacity:0.15; transform:scale(0.7); }
+    40% { opacity:1; transform:scale(1); }
+  }
+
+  .loading-text {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* ── MARKDOWN OUTPUT ────────────────────────────── */
+  .md-output { animation: fadeUp 0.3s ease; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(5px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .md-output h2 {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border-2);
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  .md-output h2:first-child { margin-top: 0; }
+
+  .md-output h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin: 0.75rem 0 0.35rem;
+  }
+
+  .md-output p {
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    line-height: 1.75;
+  }
+
+  .md-output ul, .md-output ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .md-output li { margin-bottom: 0.3rem; color: var(--text); }
+
+  .md-output strong { color: var(--text-bright); font-weight: 600; }
+
+  .md-output em { color: var(--text-dim); font-style: italic; }
+
+  .md-output code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    padding: 0.1em 0.4em;
+    color: var(--accent);
+  }
+
+  /* Data tables */
+  .md-output table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    margin: 0.75rem 0 1rem;
+  }
+
+  .md-output thead tr {
+    background: var(--surface-2);
+  }
+
+  .md-output th {
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-2);
+  }
+
+  .md-output td {
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .md-output tr:nth-child(even) td {
+    background: rgba(255,255,255,0.015);
+  }
+
+  .md-output td:first-child {
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+  }
+
+  .md-output td:nth-child(2) {
+    color: var(--text-bright);
+    font-weight: 500;
+  }
+
+  /* ── DISCLAIMER ─────────────────────────────────── */
+  .disclaimer {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-2);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    line-height: 1.65;
+  }
+
+  .disclaimer-icon { flex-shrink: 0; color: var(--accent); }
+
+  /* ── FOOTER ─────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.25rem 2rem;
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .footer-left {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+
+  .footer-left span { color: var(--accent); }
+
+  .footer-right {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--border-2);
+    text-transform: uppercase;
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    main { padding: 1.5rem 1rem 3rem; }
+    .query-row { flex-direction: column; }
+    .query-input { border-right: 1px solid var(--border-2); border-bottom: none; }
+    .query-row .btn { width: 100%; }
+    footer { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    SPEC<span style="color:var(--text-dim);font-weight:400;">REF</span>
+    <span class="logo-sub">MATERIAL DATA</span>
+  </div>
+  <button class="api-key-btn" id="apiKeyBtn" onclick="toggleApiPanel()">
+    <span id="apiKeyIcon">⚙</span> API KEY
+  </button>
+</header>
+
+<!-- ── MAIN ───────────────────────────────────────── -->
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">AI-Powered Engineering Reference · Oil &amp; Gas · Mining · Petrochemicals</div>
+    <h1 class="hero-title">Query <strong>pipe schedules</strong>, structural sections,<br>flanges &amp; fittings — in plain English.</h1>
+    <p class="hero-desc">Returns precise dimensional data with the governing standard and the reasoning behind it. Built for QS professionals who need correct data fast.</p>
+    <div class="coverage">
+      <span class="coverage-pill">ASME B36.10M · CS Pipe</span>
+      <span class="coverage-pill">ASME B36.19M · SS Pipe</span>
+      <span class="coverage-pill">BS 4-1 · UK Sections</span>
+      <span class="coverage-pill">AISC · US Sections</span>
+      <span class="coverage-pill">ASME B16.5 · Flanges</span>
+      <span class="coverage-pill">ASME B16.9 · Fittings</span>
+      <span class="coverage-pill">API 5L · Line Pipe</span>
+    </div>
+  </div>
+
+  <!-- API Panel -->
+  <div class="api-panel" id="apiPanel">
+    <div class="api-panel-label">Anthropic API Key</div>
+    <div class="api-panel-row">
+      <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-ant-api03-..." />
+      <button class="btn" onclick="saveKey()">SAVE</button>
+      <button class="btn-ghost" onclick="clearKey()">CLEAR</button>
+    </div>
+    <div class="api-panel-hint">
+      No key? Get one free at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.
+      Your key is stored only in your browser's local storage — it never passes through any intermediary server.
+    </div>
+  </div>
+
+  <!-- No-key banner -->
+  <div class="no-key-banner" id="noKeyBanner" onclick="openApiPanel()">
+    ▲ No API key configured — click here to add one before querying.
+  </div>
+
+  <!-- Query -->
+  <div class="query-section">
+    <label class="section-label" for="queryInput">Query</label>
+    <div class="query-row">
+      <input
+        type="text"
+        class="query-input"
+        id="queryInput"
+        placeholder="e.g.  6 inch Schedule 40 carbon steel pipe  —  or —  406×140×46 UB"
+        onkeydown="if(event.key==='Enter') runQuery()"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="btn" id="searchBtn" onclick="runQuery()">LOOK UP ›</button>
+    </div>
+    <div class="examples">
+      <span class="eg-label">Try:</span>
+      <button class="eg-chip" onclick="useExample(this)">NPS 8 Sch 80 SS pipe</button>
+      <button class="eg-chip" onclick="useExample(this)">DN100 standard weight CS pipe</button>
+      <button class="eg-chip" onclick="useExample(this)">356x171x51 UB</button>
+      <button class="eg-chip" onclick="useExample(this)">203x203x46 UC</button>
+      <button class="eg-chip" onclick="useExample(this)">ASME B16.5 Cl.300 6" RF flange</button>
+      <button class="eg-chip" onclick="useExample(this)">6" 90° LR elbow B16.9</button>
+      <button class="eg-chip" onclick="useExample(this)">API 5L Grade X65 12" pipe</button>
+    </div>
+  </div>
+
+  <!-- Results panel -->
+  <div class="result-panel">
+    <div class="result-toolbar">
+      <div class="result-toolbar-left">
+        <span class="result-label-text">Output</span>
+        <span class="status-badge idle" id="statusBadge">Ready</span>
+      </div>
+      <button class="btn-ghost" id="copyBtn" style="display:none;font-size:0.62rem;padding:0.2rem 0.6rem;" onclick="copyOutput()">COPY</button>
+    </div>
+    <div class="result-body" id="resultBody">
+      <div class="result-empty" id="resultEmpty">
+        <span class="result-empty-icon">◈</span>
+        Awaiting query
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <span class="disclaimer-icon">⚠</span>
+    <span>SPECREF uses AI to retrieve values from engineering standards databases. Always verify critical dimensions and weights against the primary source standard before use in cost estimates, specifications, or procurement documents. Data is provided for reference purposes only — not for structural design or engineering certification.</span>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-left">SPEC<span>REF</span> — AI material data reference · Powered by <span>Claude</span></div>
+  <div class="footer-right">ASME · BS · AISC · API</div>
+</footer>
+
+<script>
+// ── SYSTEM PROMPT ──────────────────────────────────────────────────────────────
+const SYSTEM = `You are SPECREF — a specialist material data reference assistant for quantity surveyors and estimators working in the natural resources sector (oil & gas, mining, petrochemicals).
+
+Your role: retrieve and return precise dimensional and physical property data for engineering materials from the relevant standards, based on the user's query.
+
+COVERAGE:
+- Piping (carbon steel): ASME B36.10M — NPS/DN, OD, wall thickness by schedule, weight per metre (kg/m)
+- Piping (stainless / alloy): ASME B36.19M
+- Line pipe: API 5L (grades, wall thicknesses, pressure ratings)
+- Structural steel (UK): BS 4-1 — Universal Beams (UB), Universal Columns (UC), Angles, Channels, RHS, CHS
+- Structural steel (US): AISC Steel Construction Manual
+- Flanges: ASME B16.5 (NPS ¼ – 24), ASME B16.47 (NPS 26+)
+- Butt-weld fittings: ASME B16.9 (elbows, tees, reducers)
+- Material grades: ASTM A106, A53, A333; ASTM A182, A234 where relevant
+
+RESPONSE FORMAT — always follow this structure exactly:
+
+## Material Identified
+Clear identification: type, size designation (NPS and DN where applicable), schedule or weight class, material spec.
+
+## Governing Standard
+Which standard(s) apply and WHY. Include the reasoning — e.g. "ASME B36.10M governs carbon and alloy steel pipe; B36.19M governs stainless. If this were a pipeline specification, API 5L would supersede B36.10M." Mention the standard edition/year where known.
+
+## Data
+
+Present a clean table:
+
+| Parameter | Value | Unit |
+
+For pipe include: OD, Wall Thickness, ID, Weight per metre (kg/m), Schedule, DN equivalent.
+For structural sections include: Serial Size, Mass (kg/m), Depth (d), Flange Width (b), Web Thickness (tw), Flange Thickness (tf), Root Radius (r), Second Moment of Area Ix and Iy.
+For flanges include: Flange OD, Bolt Circle Diameter, No. of Bolts, Bolt Size, Flange Thickness, Rating.
+For fittings include: NPS, Centre-to-face dimension (A/B/C/M as applicable), Weight (kg).
+
+## Notes
+Caveats and QS-relevant information: schedule equivalencies (Sch 40 = Standard Weight for NPS ≤ 10; Sch 80 = XH for NPS ≤ 8), tolerances, mill tolerances on wall thickness, common alternative designations, anything affecting pricing or procurement.
+
+RULES:
+- Never guess or approximate a value — if uncertain about a specific figure, say so explicitly and direct the user to the primary standard
+- State which edition/year of the standard you are referencing, where known
+- Flag where multiple standards could apply
+- For structural sections: clarify BS vs AISC; if query is ambiguous, return both
+- For pipe queries: always give both NPS and DN equivalents
+- Use metric as primary unless query uses imperial designations
+- Keep tables precise — this data feeds cost estimates
+- If query is genuinely ambiguous (e.g. "6 inch pipe" with no material specified), ask one targeted clarifying question`;
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let apiKey = localStorage.getItem('specref_key') || '';
+let lastRawOutput = '';
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (apiKey) {
+    setKeyStatus(true);
+  } else {
+    document.getElementById('noKeyBanner').classList.add('visible');
+  }
+});
+
+// ── API KEY ────────────────────────────────────────────────────────────────────
+function toggleApiPanel() {
+  const panel = document.getElementById('apiPanel');
+  const isOpen = panel.classList.contains('open');
+  if (!isOpen) {
+    panel.classList.add('open');
+    if (apiKey) document.getElementById('apiKeyInput').value = apiKey;
+    document.getElementById('apiKeyInput').focus();
+  } else {
+    panel.classList.remove('open');
+  }
+}
+
+function openApiPanel() {
+  document.getElementById('apiPanel').classList.add('open');
+  document.getElementById('apiKeyInput').focus();
+}
+
+function saveKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) { alert('Please enter an API key.'); return; }
+  if (!val.startsWith('sk-ant-')) {
+    alert('That doesn\'t look like a valid Anthropic API key (should start with sk-ant-). Please check and try again.');
+    return;
+  }
+  localStorage.setItem('specref_key', val);
+  apiKey = val;
+  setKeyStatus(true);
+  document.getElementById('apiPanel').classList.remove('open');
+  document.getElementById('noKeyBanner').classList.remove('visible');
+}
+
+function clearKey() {
+  localStorage.removeItem('specref_key');
+  apiKey = '';
+  document.getElementById('apiKeyInput').value = '';
+  setKeyStatus(false);
+  document.getElementById('noKeyBanner').classList.add('visible');
+}
+
+function setKeyStatus(hasKey) {
+  const btn = document.getElementById('apiKeyBtn');
+  const icon = document.getElementById('apiKeyIcon');
+  if (hasKey) {
+    btn.classList.add('keyed');
+    icon.textContent = '✓';
+    btn.querySelector('#apiKeyIcon').nextSibling.textContent = ' API KEY';
+  } else {
+    btn.classList.remove('keyed');
+    icon.textContent = '⚙';
+  }
+}
+
+// ── EXAMPLES ───────────────────────────────────────────────────────────────────
+function useExample(el) {
+  document.getElementById('queryInput').value = el.textContent.trim();
+  document.getElementById('queryInput').focus();
+}
+
+// ── QUERY ──────────────────────────────────────────────────────────────────────
+async function runQuery() {
+  const query = document.getElementById('queryInput').value.trim();
+  if (!query) return;
+
+  if (!apiKey) {
+    document.getElementById('noKeyBanner').classList.add('visible');
+    openApiPanel();
+    return;
+  }
+
+  setStatus('loading', 'Querying…');
+  document.getElementById('searchBtn').disabled = true;
+  document.getElementById('searchBtn').textContent = 'QUERYING…';
+  document.getElementById('copyBtn').style.display = 'none';
+  lastRawOutput = '';
+
+  showLoading();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-client-side-api-key-flag': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1800,
+        system: SYSTEM,
+        messages: [{ role: 'user', content: query }]
+      })
+    });
+
+    if (!res.ok) {
+      let errMsg = `API error ${res.status}`;
+      try { const j = await res.json(); errMsg = j.error?.message || errMsg; } catch(_) {}
+      throw new Error(errMsg);
+    }
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    lastRawOutput = text;
+    renderOutput(text);
+    setStatus('done', 'Complete');
+    document.getElementById('copyBtn').style.display = 'inline-block';
+
+  } catch (err) {
+    renderError(err.message);
+    setStatus('error', 'Error');
+  }
+
+  document.getElementById('searchBtn').disabled = false;
+  document.getElementById('searchBtn').textContent = 'LOOK UP ›';
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+function showLoading() {
+  document.getElementById('resultBody').innerHTML = `
+    <div class="loading-state">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="loading-text">Querying standards data</div>
+    </div>`;
+}
+
+function renderOutput(markdown) {
+  const html = marked.parse(markdown, { breaks: false });
+  document.getElementById('resultBody').innerHTML =
+    `<div class="md-output">${html}</div>`;
+}
+
+function renderError(msg) {
+  document.getElementById('resultBody').innerHTML = `
+    <div class="md-output">
+      <h2>Error</h2>
+      <p style="color:var(--error);">${escHtml(msg)}</p>
+      <p style="color:var(--text-dim);font-size:0.8rem;">Check your API key is valid and has available credits. 
+      You can verify at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);">console.anthropic.com</a>.</p>
+    </div>`;
+}
+
+// ── UTILITIES ──────────────────────────────────────────────────────────────────
+function setStatus(state, text) {
+  const badge = document.getElementById('statusBadge');
+  badge.className = `status-badge ${state}`;
+  badge.textContent = text;
+}
+
+function copyOutput() {
+  if (!lastRawOutput) return;
+  navigator.clipboard.writeText(lastRawOutput).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'COPIED ✓';
+    setTimeout(() => btn.textContent = 'COPY', 2200);
+  });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+
+</body>
+</html>
