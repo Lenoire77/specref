@@ -57,38 +57,10 @@
   </small>
 </div>
 
-<script>
-// ===== DATABASE (normally external repo) =====
-window.SPECREF_DB = {
-  metadata: {
-    version: "0.1.0"
-  },
-  pipe: {
-    "ASME B36.10M": {
-      material: "Carbon Steel",
-      explanation: "ASME B36.10M applies to carbon steel pipe dimensions.",
-      sizes: {
-        "6": {
-          schedules: {
-            "40": {
-              wallThickness_mm: 7.11,
-              weight_kg_per_m: 28.26,
-              od_mm: 168.3,
-              id_mm: 154.1
-            },
-            "80": {
-              wallThickness_mm: 10.97,
-              weight_kg_per_m: 42.56,
-              od_mm: 168.3,
-              id_mm: 146.4
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
+  <script scr="https://raw.githubusercontent.com/Lenoire77/specref-db/refs/heads/main/specref-db.js?v=0.1.0">
+  </script>
+  
+  <script>
 // ===== INIT FILTERS =====
 const standardEl = document.getElementById("standard");
 const sizeEl = document.getElementById("size");
@@ -157,8 +129,13 @@ function renderResults(d) {
 }
 
 function renderExplanation(std) {
-  document.getElementById("explanation").innerText =
-    SPECREF_DB.pipe[std].explanation;
+  const exp = SPECREF_DB.pipe[std].explanation;
+
+document.getElementById("explanation").innerHTML = `
+  <b>What:</b> ${exp.what}<br>
+  <b>Why:</b> ${exp.why}<br>
+  <b>Limits:</b> ${exp.limits}
+`;
 }
 
 // ===== HISTORY =====
