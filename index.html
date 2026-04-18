@@ -66,6 +66,11 @@ const sizeEl = document.getElementById("size");
 const scheduleEl = document.getElementById("schedule");
 
 function init() {
+  if (!SPECREF_DB || !SPECREF_DB.pipe) {
+    console.error("DB not loaded yet");
+    return;
+  }
+
   const standards = Object.keys(SPECREF_DB.pipe);
   standards.forEach(s => {
     standardEl.innerHTML += `<option value="${s}">${s}</option>`;
@@ -86,7 +91,19 @@ sizeEl.onchange = updateSchedules;
 function updateSizes() {
   sizeEl.innerHTML = "";
   const std = standardEl.value;
+  function updateSizes() {
+  if (!SPECREF_DB?.pipe) return;
+
+  sizeEl.innerHTML = "";
+  const std = standardEl.value;
+
+  if (!SPECREF_DB.pipe[std]) return;
+
   const sizes = Object.keys(SPECREF_DB.pipe[std].sizes);
+  sizes.forEach(s => {
+    sizeEl.innerHTML += `<option value="${s}">${s}</option>`;
+  });
+}
   sizes.forEach(s => {
     sizeEl.innerHTML += `<option value="${s}">${s}</option>`;
   });
@@ -155,7 +172,15 @@ function loadHistory() {
 }
 
 // ===== START =====
-init();
+function waitForDB() {
+  if (typeof SPECREF_DB !== "undefined") {
+    init();
+  } else {
+    setTimeout(waitForDB, 50);
+  }
+}
+
+waitForDB();
 </script>
 
 </body>
