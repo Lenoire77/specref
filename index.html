@@ -120,7 +120,7 @@ function runQuery() {
 
   renderResults(data);
   renderExplanation(std);
-  addToHistory(`${std} | NPS ${size} | Sch ${sch}`);
+  addToHistory(std, size, sch);
 }
 
 // ===== RENDER =====
@@ -137,18 +137,19 @@ function renderResults(d) {
 
 function renderExplanation(std) {
   const exp = SPECREF_DB.pipe[std].explanation;
-
-document.getElementById("explanation").innerHTML = `
-  <b>What:</b> ${exp.what}<br>
-  <b>Why:</b> ${exp.why}<br>
-  <b>Limits:</b> ${exp.limits}
-`;
+  document.getElementById("explanation").innerHTML = `
+    <b>What:</b> ${exp.what}<br>
+    <b>Why:</b> ${exp.why}<br>
+    <b>Limits:</b> ${exp.limits}
+  `;
 }
 
 // ===== HISTORY =====
 let history = JSON.parse(sessionStorage.getItem("specref_history")) || [];
 
-function addToHistory(entry) {
+function addToHistory(std, size, sch) {
+  const entry = { std, size, sch };
+  history = history.filter(h => !(h.std === std && h.size === size && h.sch === sch));
   history.unshift(entry);
   sessionStorage.setItem("specref_history", JSON.stringify(history));
   loadHistory();
@@ -157,9 +158,19 @@ function addToHistory(entry) {
 function loadHistory() {
   const list = document.getElementById("historyList");
   list.innerHTML = "";
-  history.slice(0, 5).forEach(h => {
-    list.innerHTML += `<li>${h}</li>`;
+  history.slice(0, 5).forEach((h, i) => {
+    list.innerHTML += `<li><a href="#" onclick="restoreFromHistory(${i}); return false;">${h.std} | NPS ${h.size} | Sch ${h.sch}</a></li>`;
   });
+}
+
+function restoreFromHistory(index) {
+  const h = history[index];
+  standardEl.value = h.std;
+  updateSizes();
+  sizeEl.value = h.size;
+  updateSchedules();
+  scheduleEl.value = h.sch;
+  runQuery();
 }
 
 // ===== START =====
