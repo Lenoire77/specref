@@ -57,7 +57,7 @@
   </small>
 </div>
 
-  <script src="https://raw.githubusercontent.com/Lenoire77/specref-db/main/specref-db.js?v=0.1.0"></script>
+  <script src="https://cdn.jsdelivr.net/gh/Lenoire77/specref-db@main/specref-db.js"></script>
   
   <script>
 // ===== INIT FILTERS =====
@@ -89,21 +89,11 @@ standardEl.onchange = () => {
 sizeEl.onchange = updateSchedules;
 
 function updateSizes() {
-  sizeEl.innerHTML = "";
-  const std = standardEl.value;
-  function updateSizes() {
   if (!SPECREF_DB?.pipe) return;
-
   sizeEl.innerHTML = "";
   const std = standardEl.value;
-
   if (!SPECREF_DB.pipe[std]) return;
-
   const sizes = Object.keys(SPECREF_DB.pipe[std].sizes);
-  sizes.forEach(s => {
-    sizeEl.innerHTML += `<option value="${s}">${s}</option>`;
-  });
-}
   sizes.forEach(s => {
     sizeEl.innerHTML += `<option value="${s}">${s}</option>`;
   });
@@ -113,6 +103,7 @@ function updateSchedules() {
   scheduleEl.innerHTML = "";
   const std = standardEl.value;
   const size = sizeEl.value;
+  if (!SPECREF_DB?.pipe?.[std]?.sizes?.[size]) return;
   const schedules = Object.keys(SPECREF_DB.pipe[std].sizes[size].schedules);
   schedules.forEach(s => {
     scheduleEl.innerHTML += `<option value="${s}">${s}</option>`;
